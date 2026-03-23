@@ -338,7 +338,6 @@ export default function Drivers() {
   )
 
   // Group label — show team name above first driver of each team
-  let lastTeam = ''
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">

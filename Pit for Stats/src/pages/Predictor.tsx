@@ -251,7 +251,6 @@ export default function Predictor() {
   const normalized = normalize(scores)
 
   const ranked = standings.data
-    ?.map((s: any, i: number) => ({ standing: s, score: scores[i], probability: normalized[i] }))
     .sort((a: any, b: any) => b.probability - a.probability)
     ?? []
 

@@ -365,7 +365,6 @@ export default function LiveTracker() {
             {sortedDrivers.map((d: any) => {
               const pos      = positions.data?.[d.driver_number]?.position ?? '—'
               const gap      = intervals.data?.[d.driver_number]?.gap_to_leader
-              const interval = intervals.data?.[d.driver_number]?.interval
               const inPit    = pits.data?.[d.driver_number]
               const car      = carData.data?.[d.driver_number]
               const isSel    = selectedDriver === d.driver_number
