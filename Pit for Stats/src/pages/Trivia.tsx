@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
+const WORKER_URL = 'https://pitforstats-proxy.ashleshamishra020.workers.dev'
+
 const CATEGORIES = [
   { id: 'history',      label: 'F1 History',       emoji: '📚' },
   { id: 'drivers',      label: 'Drivers',           emoji: '🧑‍✈️' },
@@ -43,7 +45,7 @@ Rules:
 - Easy: well known facts, Hard: obscure details
 - Do not repeat questions`
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetch(WORKER_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -73,17 +75,21 @@ function OptionButton({
   state: 'default' | 'correct' | 'wrong' | 'disabled'
 }) {
   const colors = {
-    default:  { border: 'var(--f1-border)', bg: 'var(--f1-card)',         label: '#6b6b6b' },
-    correct:  { border: '#22c55e',          bg: 'rgba(34,197,94,0.1)',    label: '#22c55e' },
-    wrong:    { border: '#e10600',          bg: 'rgba(225,6,0,0.1)',      label: '#e10600' },
-    disabled: { border: 'var(--f1-border)', bg: 'var(--f1-card)',         label: '#3a3a3a' },
+    default:  { border: 'var(--f1-border)', bg: 'var(--f1-card)',      label: '#6b6b6b' },
+    correct:  { border: '#22c55e',          bg: 'rgba(34,197,94,0.1)', label: '#22c55e' },
+    wrong:    { border: '#e10600',          bg: 'rgba(225,6,0,0.1)',   label: '#e10600' },
+    disabled: { border: 'var(--f1-border)', bg: 'var(--f1-card)',      label: '#3a3a3a' },
   }
   const c = colors[state]
 
   return (
     <motion.button
       className="w-full flex items-center gap-3 rounded-xl border p-4 text-left transition-colors"
-      style={{ borderColor: c.border, backgroundColor: c.bg, cursor: state === 'disabled' ? 'default' : 'pointer' }}
+      style={{
+        borderColor: c.border,
+        backgroundColor: c.bg,
+        cursor: state === 'disabled' ? 'default' : 'pointer',
+      }}
       whileHover={state === 'default' ? { scale: 1.01, borderColor: 'var(--f1-red)' } : {}}
       onClick={state === 'default' ? onClick : undefined}
     >
@@ -131,7 +137,7 @@ export default function Trivia() {
       )
       if (!qs.length) throw new Error('No questions returned')
       setQuestions(qs)
-    } catch (e) {
+    } catch {
       setError('Failed to generate questions. Check your connection and try again.')
     } finally {
       setLoading(false)
@@ -162,7 +168,7 @@ export default function Trivia() {
     return 'disabled'
   }
 
-  const scorePercent = Math.round((score / questions.length) * 100)
+  const scorePercent = questions.length ? Math.round((score / questions.length) * 100) : 0
   const scoreColor   = scorePercent >= 80 ? '#22c55e' : scorePercent >= 50 ? '#f59e0b' : '#e10600'
 
   return (
@@ -258,7 +264,7 @@ export default function Trivia() {
           className="flex flex-col items-center justify-center py-24 gap-4"
         >
           <div
-            className="w-10 h-10 rounded-full border-2 border-t-transparent animate-spin"
+            className="w-10 h-10 rounded-full border-2 animate-spin"
             style={{ borderColor: 'var(--f1-red)', borderTopColor: 'transparent' }}
           />
           <p className="text-gray-400 text-sm">Claude is generating your questions...</p>
@@ -285,7 +291,8 @@ export default function Trivia() {
                 {score} / {current + (selected !== null ? 1 : 0)} correct
               </span>
             </div>
-            <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--f1-border)' }}>
+            <div className="h-1.5 rounded-full overflow-hidden"
+              style={{ backgroundColor: 'var(--f1-border)' }}>
               <motion.div
                 className="h-full rounded-full"
                 style={{ backgroundColor: 'var(--f1-red)' }}
@@ -374,22 +381,17 @@ export default function Trivia() {
               {scorePercent >= 80 ? '🏆' : scorePercent >= 50 ? '🥈' : '💀'}
             </p>
             <div>
-              <p
-                className="text-5xl font-black"
-                style={{ color: scoreColor }}
-              >
+              <p className="text-5xl font-black" style={{ color: scoreColor }}>
                 {score}/{questions.length}
               </p>
               <p className="text-gray-400 mt-1">
                 {scorePercent >= 80
-                  ? 'You\'re an F1 legend!'
+                  ? "You're an F1 legend!"
                   : scorePercent >= 50
                   ? 'Not bad, keep studying!'
                   : 'Back to the garage with you!'}
               </p>
             </div>
-
-            {/* Score bar */}
             <div className="h-3 rounded-full overflow-hidden mx-8"
               style={{ backgroundColor: 'var(--f1-border)' }}>
               <motion.div
