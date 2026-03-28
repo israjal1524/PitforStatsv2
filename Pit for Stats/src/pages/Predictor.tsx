@@ -110,14 +110,14 @@ function calcWinProbability(
   return Math.min(99, Math.max(1, Math.round(raw)))
 }
 
-function normalize(scores: number[]): number[] {
+function normalizeProbabilities(scores: number[]): number[] {
   const total = scores.reduce((a, b) => a + b, 0)
   if (!total) return scores.map(() => 0)
   return scores.map(s => Math.round((s / total) * 100))
 }
 
 function PredictorCard({
-  standing, nextRace, rank, probability, score
+  standing, nextRace, rank, probability
 }: {
   standing: any
   nextRace: any
@@ -248,9 +248,13 @@ export default function Predictor() {
     return calcWinProbability(s, formQuery, circuitQuery, standings.data.length)
   }) ?? []
 
-  const normalized = normalize(scores)
+  const probs = normalizeProbabilities(scores)
 
   const ranked = standings.data
+    ?.map((s: any, i: number) => ({
+      standing: s,
+      probability: probs[i],
+    }))
     .sort((a: any, b: any) => b.probability - a.probability)
     ?? []
 
@@ -331,3 +335,10 @@ export default function Predictor() {
     </div>
   )
 }
+
+
+
+
+
+
+
